@@ -1,0 +1,94 @@
+import json
+import os
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle
+from reportlab.lib import colors
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SAMPLES_DIR = os.path.join(BASE_DIR, "samples")
+OUTPUT_DIR = os.path.join(BASE_DIR, "output")
+
+ALERT_FILE = os.path.join(SAMPLES_DIR, "alert.json")
+EVENTS_FILE = os.path.join(SAMPLES_DIR, "events.json")
+
+OUTPUT_FILE = os.path.join(OUTPUT_DIR, "reporte.pdf")
+
+
+def load_json(path):
+    """
+    Carga un archivo JSON desde disco.
+    """
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def generate_pdf(alert, events):
+    """
+    Genera el informe PDF del incidente.
+    """
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+    doc = SimpleDocTemplate(OUTPUT_FILE, pagesize=A4)
+    styles = getSampleStyleSheet()
+    story = []
+
+    story.append(Paragraph(
+        f"Informe de Incidente: {alert['title']}",
+        styles["Title"]
+    ))
+
+    meta_data = [
+        ["ID", alert["id"]],
+        ["Severidad", alert["severity"]],
+        ["Estado", alert["status"]]
+    ]
+
+    meta_table = Table(meta_data, colWidths=[120, 350])
+    meta_table.setStyle(TableStyle([
+        ("GRID", (0, 0), (-1, -1), 1, colors.black),
+        ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey)
+    ]))
+    story.append(meta_table)
+
+    story.append(Paragraph("Activos afectados", styles["Heading2"]))
+    assets_data = [["Hostname", "IP"]]
+    for asset in alert["assets"]:
+        assets_data.append([asset["hostname"], asset["ip"]])
+
+    assets_table = Table(assets_data)
+    assets_table.setStyle(TableStyle([
+        ("GRID", (0, 0), (-1, -1), 1, colors.black),
+        ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey)
+    ]))
+    story.append(assets_table)
+
+    story.append(Paragraph("Timeline de eventos", styles["Heading2"]))
+    events_data = [["Timestamp", "Regla", "Mensaje"]]
+
+    for event in events[:10]:
+        events_data.append([event["ts"], event["rule"], event["message"]])
+
+    events_table = Table(events_data)
+    events_table.setStyle(TableStyle([
+        ("GRID", (0, 0), (-1, -1), 1, colors.black),
+        ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey)
+    ]))
+    story.append(events_table)
+
+    story.append(Paragraph("Indicadores de Compromiso (IOCs)", styles["Heading2"]))
+    for ioc in alert["iocs"]:
+        story.append(Paragraph(f"- {ioc}", styles["Normal"]))
+
+    story.append(Paragraph("Recomendaciones", styles["Heading2"]))
+    for i, rec in enumerate(alert["recommendations"], start=1):
+        story.append(Paragraph(f"{i}. {rec}", styles["Normal"]))
+
+    doc.build(story)
+    print(f"PDF generado: {OUTPUT_FILE}")
+
+
+if __name__ == "__main__":
+    alert_data = load_json(ALERT_FILE)
+    events_data = load_json(EVENTS_FILE)
+    generate_pdf(alert_data, events_data)
