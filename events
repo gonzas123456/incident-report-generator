@@ -1,0 +1,12 @@
+[
+  {
+    "ts": "2026-04-15 10:32:11",
+    "rule": "SSH Brute Force",
+    "message": "Múltiples intentos fallidos de login"
+  },
+  {
+    "ts": "2026-04-15 10:34:02",
+    "rule": "Successful Login",
+    "message": "Acceso exitoso desde IP sospechosa"
+  }
+]
