@@ -1,0 +1,21 @@
+{
+  "id": "INC-2026-001",
+  "title": "Posible acceso sospechoso a servidor",
+  "severity": "Alta",
+  "status": "Abierto",
+  "assets": [
+    {
+      "hostname": "srv-web-01",
+      "ip": "192.168.1.50"
+    }
+  ],
+  "iocs": [
+    "185.234.72.10",
+    "malicious-domain.example"
+  ],
+  "recommendations": [
+    "Aislar el servidor afectado",
+    "Revisar logs de acceso",
+    "Cambiar credenciales comprometidas"
+  ]
+}
