@@ -27,6 +27,64 @@ El objetivo del proyecto es **estandarizar y automatizar** la documentación de 
 
 ---
 
+## 🧩 Componentes principales
+
+### `main.py`
+
+Es el núcleo de la aplicación. Se encarga de orquestar todo el flujo de generación del informe:
+
+- Carga los archivos JSON de entrada (`alert.json` y `events.json`)
+- Procesa los datos del incidente
+- Construye el documento PDF usando ReportLab
+- Genera tablas, encabezados y secciones estructuradas
+- Guarda el informe final en la carpeta `output`
+
+Funciones principales:
+
+- `load_json(path)`: carga archivos JSON de entrada
+- `generate_pdf(alert, events)`: genera el informe PDF completo
+- Bloque `if __name__ == "__main__"`: punto de entrada de la aplicación
+
+---
+
+### `template.html.j2`
+
+Plantilla HTML de referencia utilizada para definir la estructura visual del informe.
+
+Aunque la versión actual genera el PDF directamente desde Python (ReportLab),
+esta plantilla se conserva para:
+
+- Documentar la estructura lógica del informe
+- Facilitar una futura implementación HTML → PDF
+- Separar diseño y lógica de negocio
+
+---
+
+### `alert.json`
+
+Archivo JSON que define los **metadatos principales del incidente**, incluyendo:
+
+- Identificador del incidente
+- Título, severidad y estado
+- Lista de activos afectados
+- Indicadores de compromiso (IOCs)
+- Recomendaciones de mitigación
+
+---
+
+### `events.json`
+
+Archivo JSON que contiene la **línea temporal del incidente**.
+
+Cada evento incluye:
+- Marca temporal
+- Regla o tipo de evento
+- Mensaje descriptivo
+
+Estos datos se utilizan para generar la sección de timeline del informe PDF.
+
+---
+
 ## Estructura del proyecto
 
 ```
